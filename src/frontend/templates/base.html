@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election2027India - Command Center</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1A1D1A', // Dark background
+                        secondary: '#232924', // Card background
+                        accent: '#22c55e', // Neon Green (Tailwind green-500)
+                        textMain: '#E8EBE9',
+                        textMuted: '#8b9691'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-primary text-textMain font-sans overflow-hidden">
+    <div class="flex h-screen w-screen">
+        
+        <!-- Vertical Sidebar Navigation -->
+        <aside class="w-64 bg-secondary flex flex-col hidden md:flex border-r border-[#313b35]">
+            <div class="p-6 flex items-center gap-3">
+                <i data-lucide="shield-check" class="text-accent w-8 h-8"></i>
+                <h1 class="text-xl font-bold tracking-wider">ELECTION2027<span class="text-accent">INDIA</span></h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="#" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl bg-[#2b332d] text-accent">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" id="navCivic" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-textMuted hover:bg-[#2b332d] hover:text-textMain transition-colors">
+                    <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                    <span class="font-medium">Civic Education</span>
+                </a>
+                <a href="#" id="navCandidates" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-textMuted hover:bg-[#2b332d] hover:text-textMain transition-colors">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="font-medium">Candidates</span>
+                </a>
+                <a href="#" id="navPolling" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-textMuted hover:bg-[#2b332d] hover:text-textMain transition-colors">
+                    <i data-lucide="map" class="w-5 h-5"></i>
+                    <span class="font-medium">Polling Logistics</span>
+                </a>
+                <a href="#" id="navTimeline" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-textMuted hover:bg-[#2b332d] hover:text-textMain transition-colors">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span class="font-medium">Timeline</span>
+                </a>
+            </nav>
+            
+            <div class="p-6">
+                <!-- Language Selector -->
+                <div class="flex items-center gap-2 mb-4 text-sm text-textMuted">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                    <select id="langSelect" class="bg-secondary text-textMain outline-none flex-1 border border-[#313b35] rounded-md px-2 py-1">
+                        <option value="hi">हिंदी (Hindi)</option>
+                        <option value="en">English</option>
+                        <option value="ta">தமிழ் (Tamil)</option>
+                        <option value="te">తెలుగు (Telugu)</option>
+                    </select>
+                </div>
+                
+                <div class="bg-gradient-to-r from-[#1c3320] to-[#122216] rounded-xl p-4 border border-accent/20">
+                    <p class="text-xs text-accent font-semibold mb-1">Voter ID Status</p>
+                    <p class="text-sm font-medium">Verified User ✓</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Mobile Navbar -->
+            <header class="md:hidden bg-secondary border-b border-[#313b35] p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-check" class="text-accent w-6 h-6"></i>
+                    <h1 class="text-lg font-bold">ELECTION2027<span class="text-accent">INDIA</span></h1>
+                </div>
+                <button class="text-textMuted hover:text-textMain">
+                    <i data-lucide="menu"></i>
+                </button>
+            </header>
+            
+            <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Inject JS logic -->
+    {% block scripts %}
+    <script src="/static/script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+    {% endblock %}
+</body>
+</html>
