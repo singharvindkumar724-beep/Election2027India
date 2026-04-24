@@ -6,3 +6,4 @@ rich>=13.0.0
 requests
 google-genai
 Flask
+gunicorn==21.2.0
