@@ -1,48 +1,46 @@
-import sys
 import os
-from flask import Flask, request, jsonify, render_template
-from src.backend.agent import IntentRouter
+import time
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from src.backend.routes import register_routes
 
-# Set up Flask to point to the frontend directories
-template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'templates'))
-static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'static'))
+app = Flask(__name__)
 
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir, static_url_path='/static')
-router = IntentRouter()
+# Security: CORS implementation
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-@app.route('/')
-def dashboard():
-    return render_template('dashboard.html')
+# Security: Rate Limiter (5 requests per minute per IP)
+RATE_LIMIT = 5
+RATE_LIMIT_WINDOW = 60 # seconds
+request_history = {}
 
-@app.route('/api/ask', methods=['POST'])
-def ask_agent():
-    try:
-        data = request.get_json()
-        if not data or 'query' not in data:
-            return jsonify({
-                "intent": "error",
-                "response": {
-                    "status": "error",
-                    "data": {"message": "Invalid request. 'query' is required."}
-                }
-            }), 400
-
-        user_query = data['query']
-        lang = data.get('lang', 'en') # Default to English if not specified
+@app.before_request
+def rate_limiter():
+    if not request.path.startswith('/api/chat'):
+        return
+    ip = request.remote_addr
+    current_time = time.time()
+    
+    if ip not in request_history:
+        request_history[ip] = []
+    
+    # Filter out requests older than the window
+    request_history[ip] = [t for t in request_history[ip] if current_time - t < RATE_LIMIT_WINDOW]
+    
+    if len(request_history[ip]) >= RATE_LIMIT:
+        return jsonify({"error": "Rate limit exceeded. Maximum 5 requests per minute."}), 429
         
-        result = router.route_query(user_query, lang)
-        return jsonify(result)
-        
-    except Exception as e:
-        print(f"Error in /api/ask: {e}", file=sys.stderr)
-        return jsonify({
-            "intent": "error",
-            "response": {
-                "status": "error",
-                "data": {"message": f"An internal server error occurred: {str(e)}"}
-            }
-        }), 500
+    request_history[ip].append(current_time)
+
+# Security Headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
+register_routes(app)
 
 if __name__ == '__main__':
-    # Run the Flask development server
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=False)

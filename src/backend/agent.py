@@ -1,65 +1,50 @@
-from typing import Dict, Any, List
-from src.backend.integrations.calendar_svc import get_election_deadlines
-from src.backend.integrations.maps_svc import get_polling_location
-from src.backend.integrations.search_svc import get_election_facts
-from src.backend.integrations.sheets_svc import get_candidates
-from src.backend.integrations.translate_svc import translate_text
+import html
+from src.backend.services.chat import get_gemini_response
+from src.backend.services.calendar import get_election_timeline
 
-class IntentRouter:
-    def __init__(self):
-        self.calendar_keywords = ["when", "date", "time", "deadline", "schedule", "calendar"]
-        self.maps_keywords = ["where", "location", "place", "polling", "map", "address", "go"]
-        self.candidate_keywords = ["candidate", "who", "politician", "party", "profile", "leader"]
-        self.civic_keywords = ["how to vote", "why vote", "civic", "education", "under 18", "youth"]
+def translate_text(text, target_language):
+    """
+    Mock Google Cloud Translation API for dynamic chat localization.
+    In a real scenario, this would call the Google Cloud Translation API.
+    """
+    if target_language == 'en':
+        return text
+    # Mock translations for demo
+    translations = {
+        "hi": f"[Hindi]: {text}",
+        "ta": f"[Tamil]: {text}",
+        "te": f"[Telugu]: {text}"
+    }
+    return translations.get(target_language, f"[{target_language.upper()}]: {text}")
 
-    def route_query(self, query: str, lang: str = "en") -> Dict[str, Any]:
-        """
-        Routes the user's text query to the appropriate service module.
-        Translates from the requested language to English for routing, then back.
-        """
-        # 1. Translate input to English (if needed)
-        eng_query = translate_text(query, "en") if lang != "en" else query
-        query_lower = eng_query.lower()
-        
-        # 2. Routing Logic
-        if any(keyword in query_lower for keyword in self.maps_keywords):
-            response_data = get_polling_location()
-            intent = "action_phase"
-        elif any(keyword in query_lower for keyword in self.candidate_keywords):
-            response_data = get_candidates()
-            intent = "candidate_profiles"
-        elif any(keyword in query_lower for keyword in self.calendar_keywords):
-            response_data = get_election_deadlines()
-            intent = "planning_phase"
-        elif any(keyword in query_lower for keyword in self.civic_keywords):
-            response_data = {
-                "status": "live",
-                "service": "Civic Education",
-                "data": {
-                    "facts": [
-                        "Voting is a fundamental democratic right in India.",
-                        "You must be 18 years old to vote.",
-                        "Registering to vote is simple and can be done online."
-                    ]
-                }
-            }
-            intent = "civic_education"
+def process_chat_intent(message, language='en'):
+    """
+    NLP Router: Determines intent and calls appropriate services.
+    Ensures output is also sanitized.
+    """
+    lower_msg = message.lower()
+    
+    try:
+        if 'when' in lower_msg or 'timeline' in lower_msg or 'date' in lower_msg:
+            timeline = get_election_timeline()
+            # Safety check if timeline failed
+            if timeline.get("status") == "error":
+                response_text = "I'm having trouble fetching the timeline right now."
+            else:
+                response_text = f"The upcoming election starts on {timeline['phases'][0]['date']}."
         else:
-            # Fallback to general conversational chat (Gemini)
-            # We'll use the search service but it acts as general Q&A
-            response_data = get_election_facts(eng_query) # Passing the specific query
-            intent = "information_phase"
-
-        # 3. Translate string fields in response back to target language (Basic implementation)
-        if lang != "en":
-            # For hackathon simplicity, we just add a localized flag or translate the main message
-            # In a full app, we'd recursively traverse the JSON and translate all text values.
-            response_data["service"] = f"{response_data.get('service', '')} (Translated)"
-            if "message" in response_data.get("data", {}):
-                response_data["data"]["message"] = translate_text(response_data["data"]["message"], lang)
-
-        return {
-            "intent": intent,
-            "response": response_data,
-            "detected_language": lang
-        }
+            # Call Gemini API for core conversational assistant
+            response_text = get_gemini_response(message)
+            
+        # Dynamic translation based on user preference
+        translated_response = translate_text(response_text, language)
+        
+        # Security: Sanitize output before sending to client
+        safe_output = html.escape(translated_response)
+        
+        return {"response": safe_output, "status": "success"}
+    except Exception as e:
+        # Fallback logic
+        error_msg = html.escape(f"Service temporarily unavailable: {str(e)}. Please refer to our static FAQ.")
+        translated_error = translate_text(error_msg, language)
+        return {"response": translated_error, "status": "error"}

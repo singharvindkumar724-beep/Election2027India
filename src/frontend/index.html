@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic360 India - Command Center</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" aria-label="Main Navigation">
+            <h1 class="logo">Civic360</h1>
+            <ul class="nav-links">
+                <li><a href="#dashboard" aria-label="Dashboard Overview" tabindex="0">Dashboard</a></li>
+                <li><a href="#election-map" aria-label="Election Map" tabindex="0">Map</a></li>
+                <li><a href="#chat" aria-label="Chat Interface" tabindex="0">Chat</a></li>
+            </ul>
+            
+            <div class="lang-toggle">
+                <label for="lang-select" class="sr-only">Select Language</label>
+                <select id="lang-select" aria-label="Language Selector" tabindex="0">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                </select>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="main-content">
+            <section id="dashboard" class="panel" aria-labelledby="dashboard-title">
+                <h2 id="dashboard-title" data-i18n="dashboard_title">Election Command Center</h2>
+                <article class="info-card">
+                    <h3 data-i18n="timeline_title">Election Timeline</h3>
+                    <p id="timeline-info" aria-live="polite">Loading timeline...</p>
+                </article>
+            </section>
+            
+            <section id="chat-widget" class="panel" aria-labelledby="chat-title">
+                <h2 id="chat-title" data-i18n="chat_title">AI Assistant</h2>
+                <div class="chat-box" id="chat-box" aria-live="polite" aria-atomic="false" role="log">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <form id="chat-form" aria-label="Chat Input Form">
+                    <input type="text" id="chat-input" placeholder="Ask about elections..." aria-label="Message Input" tabindex="0" required>
+                    <button type="submit" aria-label="Send Message" tabindex="0" data-i18n="send_btn">Send</button>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
