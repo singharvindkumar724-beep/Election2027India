@@ -1,6 +1,6 @@
-# Civic360 India - Hackathon Submission
+# Election2027India - Hackathon Submission
 
-Welcome to Civic360 India, a high-performance, modular, and secure election dashboard and conversational assistant designed specifically for the 2027 India Elections.
+Welcome to Election2027India, a high-performance, modular, and secure election dashboard and conversational assistant designed specifically for the 2027 India Elections.
 
 ## Hackathon Evaluation Rubric Justification
 

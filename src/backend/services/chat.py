@@ -15,7 +15,7 @@ def get_gemini_response(prompt):
             
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(
-            f"You are Civic360, a helpful Indian Election assistant. Answer safely and neutrally: {prompt}"
+            f"You are Election2027India, a helpful Indian Election assistant. Answer safely and neutrally: {prompt}"
         )
         return response.text
     except Exception as e:
