@@ -1,10 +1,12 @@
 import os
 import time
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from src.backend.routes import register_routes
 
-app = Flask(__name__)
+# Create absolute path to frontend directory
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 
 # Security: CORS implementation
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -39,6 +41,15 @@ def add_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     return response
+
+# Serve Frontend Files
+@app.route('/')
+def serve_frontend():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory(app.static_folder, path)
 
 register_routes(app)
 

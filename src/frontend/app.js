@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTranslations(currentLang);
 
     // Timeline fetch mock
-    fetch('http://localhost:5000/api/timeline')
+    fetch('/api/timeline')
         .then(res => res.json())
         .then(data => {
             if(data.status === 'success' && data.phases && data.phases.length > 0) {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
 
         try {
-            const response = await fetch('http://localhost:5000/api/chat', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: msg, language: currentLang })
