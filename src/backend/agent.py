@@ -1,50 +1,49 @@
 import html
+from typing import Dict, Any
+
 from src.backend.services.chat import get_gemini_response
 from src.backend.services.calendar import get_election_timeline
+from src.backend.services.translation import translate_text
 
-def translate_text(text, target_language):
-    """
-    Mock Google Cloud Translation API for dynamic chat localization.
-    In a real scenario, this would call the Google Cloud Translation API.
-    """
-    if target_language == 'en':
-        return text
-    # Mock translations for demo
-    translations = {
-        "hi": f"[Hindi]: {text}",
-        "ta": f"[Tamil]: {text}",
-        "te": f"[Telugu]: {text}"
-    }
-    return translations.get(target_language, f"[{target_language.upper()}]: {text}")
-
-def process_chat_intent(message, language='en'):
+def process_chat_intent(message: str, language: str = 'en') -> Dict[str, Any]:
     """
     NLP Router: Determines intent and calls appropriate services.
     Ensures output is also sanitized.
+    
+    Args:
+        message (str): The user's input message.
+        language (str): The target language code. Defaults to 'en'.
+        
+    Returns:
+        Dict[str, Any]: A dictionary containing the response text and status.
     """
-    lower_msg = message.lower()
+    lower_msg: str = message.lower()
     
     try:
         if 'when' in lower_msg or 'timeline' in lower_msg or 'date' in lower_msg:
-            timeline = get_election_timeline()
+            timeline: Dict[str, Any] = get_election_timeline()
             # Safety check if timeline failed
             if timeline.get("status") == "error":
-                response_text = "I'm having trouble fetching the timeline right now."
+                response_text: str = "I'm having trouble fetching the timeline right now."
             else:
-                response_text = f"The upcoming election starts on {timeline['phases'][0]['date']}."
+                phases = timeline.get('phases', [])
+                if phases:
+                    response_text = f"The upcoming election starts on {phases[0]['date']}."
+                else:
+                    response_text = "Timeline information is currently unavailable."
         else:
             # Call Gemini API for core conversational assistant
             response_text = get_gemini_response(message)
             
         # Dynamic translation based on user preference
-        translated_response = translate_text(response_text, language)
+        translated_response: str = translate_text(response_text, language)
         
         # Security: Sanitize output before sending to client
-        safe_output = html.escape(translated_response)
+        safe_output: str = html.escape(translated_response)
         
         return {"response": safe_output, "status": "success"}
     except Exception as e:
         # Fallback logic
-        error_msg = html.escape(f"Service temporarily unavailable: {str(e)}. Please refer to our static FAQ.")
-        translated_error = translate_text(error_msg, language)
-        return {"response": translated_error, "status": "error"}
+        error_msg: str = f"Service temporarily unavailable: {str(e)}. Please refer to our static FAQ."
+        translated_error: str = translate_text(error_msg, language)
+        return {"response": html.escape(translated_error), "status": "error"}

@@ -4,52 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Election2027India - Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neonGreen: '#00FF00', // WCAG AAA compliant against #121212
+                        darkBg: '#121212',
+                        darkPanel: '#1e1e1e'
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar" aria-label="Main Navigation">
-            <h1 class="logo">Election2027India</h1>
-            <ul class="nav-links">
-                <li><a href="#dashboard" aria-label="Dashboard Overview" tabindex="0">Dashboard</a></li>
-                <li><a href="#election-map" aria-label="Election Map" tabindex="0">Map</a></li>
-                <li><a href="#chat" aria-label="Chat Interface" tabindex="0">Chat</a></li>
-            </ul>
-            
-            <div class="lang-toggle">
-                <label for="lang-select" class="sr-only">Select Language</label>
-                <select id="lang-select" aria-label="Language Selector" tabindex="0">
-                    <option value="en">English</option>
-                    <option value="hi">हिंदी (Hindi)</option>
-                    <option value="ta">தமிழ் (Tamil)</option>
-                    <option value="te">తెలుగు (Telugu)</option>
-                </select>
-            </div>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main class="main-content" id="main-content">
-            <section id="dashboard" class="panel" aria-labelledby="dashboard-title">
-                <h2 id="dashboard-title" data-i18n="dashboard_title">Election Command Center</h2>
-                <article class="info-card">
-                    <h3 data-i18n="timeline_title">Election Timeline</h3>
-                    <p id="timeline-info" aria-live="polite">Loading timeline...</p>
-                </article>
-            </section>
-            
-            <section id="chat-widget" class="panel" aria-labelledby="chat-title">
-                <h2 id="chat-title" data-i18n="chat_title">AI Assistant</h2>
-                <div class="chat-box" id="chat-box" aria-live="polite" aria-atomic="false" role="log">
-                    <!-- Chat messages will appear here -->
-                </div>
-                <form id="chat-form" aria-label="Chat Input Form">
-                    <input type="text" id="chat-input" placeholder="Ask about elections..." aria-label="Message Input" tabindex="0" required>
-                    <button type="submit" aria-label="Send Message" tabindex="0" data-i18n="send_btn">Send</button>
-                </form>
-            </section>
-        </main>
+<body class="bg-darkBg text-white font-sans m-0 p-0 flex flex-col md:flex-row min-h-screen">
+    <!-- Onboarding Modal -->
+    <div id="onboarding-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center hidden" aria-modal="true" role="dialog">
+        <div class="bg-darkPanel p-6 rounded-lg max-w-md w-full border border-gray-700">
+            <h2 class="text-2xl font-bold text-neonGreen mb-4">Welcome to Election2027India</h2>
+            <p class="mb-4">Follow this guided tour to get started:</p>
+            <ol class="list-decimal list-inside space-y-2 mb-6">
+                <li><strong class="text-neonGreen">Learn about Candidates:</strong> Ask the AI Assistant about your local candidates.</li>
+                <li><strong class="text-neonGreen">Find Timelines:</strong> View the election timeline on the dashboard.</li>
+                <li><strong class="text-neonGreen">Locate Polling Booth:</strong> Find your nearest polling station easily.</li>
+            </ol>
+            <button id="close-tour-btn" class="w-full py-2 bg-neonGreen text-black font-bold rounded hover:bg-green-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen">Get Started</button>
+        </div>
     </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-full md:w-64 bg-darkPanel p-6 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col" aria-label="Main Navigation">
+        <h1 class="text-neonGreen text-2xl font-bold mb-8">Election2027India</h1>
+        <ul class="flex-grow space-y-4">
+            <li><a href="#dashboard" class="block p-2 rounded hover:bg-gray-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen" aria-label="Dashboard Overview" tabindex="0">Dashboard</a></li>
+            <li><a href="#election-map" class="block p-2 rounded hover:bg-gray-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen" aria-label="Election Map" tabindex="0">Map</a></li>
+            <li><a href="#chat-widget" class="block p-2 rounded hover:bg-gray-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen" aria-label="Chat Interface" tabindex="0">Chat</a></li>
+        </ul>
+        
+        <div class="mt-8">
+            <label for="lang-select" class="sr-only">Select Language</label>
+            <select id="lang-select" class="w-full p-2 bg-darkBg text-white border border-gray-700 rounded focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen" aria-label="Language Selector" tabindex="0">
+                <option value="en">English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+            </select>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow p-8 grid grid-cols-1 lg:grid-cols-2 gap-8" id="main-content">
+        <section id="dashboard" class="bg-darkPanel p-6 rounded-lg border border-gray-800" aria-labelledby="dashboard-title">
+            <h2 id="dashboard-title" class="text-xl font-semibold mb-4" data-i18n="dashboard_title">Election Command Center</h2>
+            <article class="bg-darkBg p-4 rounded border border-gray-700">
+                <h3 class="text-neonGreen font-medium mb-2" data-i18n="timeline_title">Election Timeline</h3>
+                <p id="timeline-info" aria-live="polite">Loading timeline...</p>
+            </article>
+            <img src="https://via.placeholder.com/400x200" alt="Election Banner" loading="lazy" class="mt-6 w-full rounded border border-gray-700 hidden lg:block">
+        </section>
+        
+        <section id="chat-widget" class="bg-darkPanel p-6 rounded-lg border border-gray-800 flex flex-col h-[500px]" aria-labelledby="chat-title">
+            <h2 id="chat-title" class="text-xl font-semibold mb-4" data-i18n="chat_title">AI Assistant</h2>
+            <div class="flex-grow overflow-y-auto bg-darkBg border border-gray-700 rounded p-4 mb-4 space-y-3" id="chat-box" aria-live="polite" aria-atomic="false" role="log">
+                <!-- Chat messages will appear here -->
+            </div>
+            <form id="chat-form" aria-label="Chat Input Form" class="flex gap-2 mt-auto">
+                <input type="text" id="chat-input" class="flex-grow p-3 bg-darkBg border border-gray-700 rounded focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen text-white" placeholder="Ask about candidates or timeline..." aria-label="Message Input" tabindex="0" required>
+                <button type="submit" class="px-6 py-3 bg-neonGreen text-black font-bold rounded hover:bg-green-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-neonGreen" aria-label="Send Message" tabindex="0" data-i18n="send_btn">Send</button>
+            </form>
+        </section>
+    </main>
     <script src="app.js"></script>
 </body>
 </html>
